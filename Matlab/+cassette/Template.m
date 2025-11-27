@@ -32,109 +32,107 @@ classdef Template < matlab.mixin.SetGetExactNames & matlab.mixin.Copyable
             new_obj.name=name;
             new_obj.file=[];
         end
-        function write(obj,folder)
+        function write(obj,folder,inargs)
             arguments
                 obj
                 folder (1,1) string {mustBeFolder}
+                inargs.outputextension(1,1) string = ""
+                inargs.mkdir (1,1) logical = true
             end
 
-            fid=fopen(fullfile(folder,obj.name),'w+');
-            fprintf(fid,"%s\r\n",obj.data);
-            fclose(fid);
+            O=length(obj);
+            for o=1:O
+                % determine filename
+                filename=fullfile(folder,string(obj(o).name)+inargs.outputextension);
+                fprintf("[%i] writing:\t%s\n",o,filename)
+                if inargs.mkdir && ~exist(fileparts(filename),'dir')
+                    mkdir(fileparts(filename))
+                end
+
+                % write contents into file
+                fid=fopen(filename,'w+');
+                fprintf(fid,'%s\r\n',obj(o).data);
+                fclose(fid);
+            end
 
         end
 
     end
 
     methods
-        function index = startsWith(obj,pattern,after_index)
+        function index = findLine(obj,pattern,inargs)
             % Returns the index of the line which starts with pattern
             arguments
                 obj
                 pattern (1,1) string
-                after_index (1,1) int32 = 1
+                inargs.after_index (1,1) int32 = 1
+                inargs.method (1,1) string {mustBeMember(inargs.method,["startsWith","contains"])}= "startsWith"
             end
             index=NaN;
-            for i = after_index:length(obj.data)
-                if startsWith(obj.data(i), pattern)
-                    index = i;
-                    return
-                end
-            end
+
+            func=str2func(inargs.method);
+
+            index=find(func(obj.data(inargs.after_index:end),pattern),1)+inargs.after_index-1;
+
         end
 
-        function l=getLine(obj,pattern,after_index)
+        function l=getLine(obj,pattern,inargs)
             arguments
                 obj
                 pattern (1,1) string
-                after_index (1,1) int64 = 1
+                inargs.after_index (1,1) int32 = 1
+                inargs.method (1,1) string {mustBeMember(inargs.method,["startsWith","contains"])}= "startsWith"
             end
-            index=obj.startsWith(pattern,after_index=after_index);
+            index=obj.findLine(pattern,after_index=inargs.after_index,method=inargs.method);
             l=obj.data(index);
         end
-        function replaceLine(obj,pattern,newline,after_index)
+        function replaceLine(obj,pattern,newline,inargs)
             arguments
                 obj
                 pattern (1,1) string
                 newline (1,1) string
-                after_index (1,1) int64 = 1
+                inargs.after_index (1,1) int32 = 1
+                inargs.method (1,1) string {mustBeMember(inargs.method,["startsWith","contains"])}= "startsWith"
             end
-            index=obj.startsWith(pattern,after_index=after_index);
+            index=obj.findLine(pattern,after_index=inargs.after_index,method=inargs.method);
             obj.data(index)=newline;
         end
-        function b=getBlock(obj,startpattern,endpattern)
+        function b=getBlock(obj,startpattern,endpattern,inargs)
             arguments
                 obj
                 startpattern (1,1) string
                 endpattern (1,1) string
+                inargs.exclude_limits (1,1) logical = true
             end
-            index_start=obj.startsWith(startpattern);
-            index_end=obj.startsWith(endpattern,index_start);
-
+            index_start=obj.findLine(startpattern);
+            index_end=obj.findLine(endpattern,after_index=index_start);
+            if inargs.exclude_limits
+                index_start=index_start+1;
+                index_end=index_end-1;
+            end
             b=obj.data(index_start:index_end);
         end
-        function replaceBlock(obj,startpattern,endpattern,newblock)
+        function replaceBlock(obj,startpattern,endpattern,newblock,inargs)
             arguments
                 obj
                 startpattern (1,1) string
                 endpattern (1,1) string
                 newblock (:,1) string
+                inargs.exclude_limits (1,1) logical = true
             end
-            index_start=obj.startsWith(startpattern);
-            index_end=obj.startsWith(endpattern,start_index);
-
+            index_start=obj.findLine(startpattern);
+            index_end=obj.findLine(endpattern,after_index=index_start);
+            if inargs.exclude_limits
+                index_start=index_start+1;
+                index_end=index_end-1;
+            end
             obj.data(index_start:index_end)=newblock;
         end
 
-        function b=interpretBlock(obj,startpattern,endpattern)
-            arguments
-                obj
-                startpattern (1,1) string
-                endpattern (1,1) string
-            end
-            index_start=obj.startsWith(startpattern);
-            index_end=obj.startsWith(endpattern,index_start);
 
-            b=obj.lines2struct(obj.data(index_start:index_end));
-        end
     end
     methods (Static)
-        function result=lines2struct(lines)
-            result=struct();
-           
-            I=length(lines);
-            for i=1:I
-                [token,remainder]=strtok(lines(i),[" ", sprintf("\t")]);
-                parsed_str=strip(strsplit(remainder,','));
-                parsed_num=str2double(parsed_str);
-                if all(isnan(parsed_num))
-                    parsed=parsed_str;
-                else
-                    parsed=parsed_num;
-                end
-                result.(token)=parsed;
-            end            
-        end
+
     end
 
 end
