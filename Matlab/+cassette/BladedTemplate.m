@@ -56,6 +56,27 @@ classdef BladedTemplate < cassette.Template
              end
              obj.replaceLine(full_propname,sprintf("%s\t%s",full_propname,string(value)))
         end
+        function insertProperty(obj,propname,value,position)
+            arguments
+                obj
+                propname (1,1) string
+                value (1,1)
+                position (1,1)
+            end
+            try 
+                old_value=obj.lines2struct(obj.getLine(propname));
+                full_propname=string(fields(old_value));
+                if propname~=full_propname
+                    error("A partial match of property name '%s' was found for property '%s'",propname,full_propname)
+                else
+                    error("template already contains property '%s'= %s",full_propname,str(old_value.(full_propname)))
+                end
+            catch
+            end
+            obj.insertLines(position,sprintf("%s\t%s",propname,string(value)))
+
+        end
+        
         function value=interpretXMLProperty(obj,propname,inargs)
             arguments
                 obj

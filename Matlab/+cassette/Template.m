@@ -51,7 +51,7 @@ classdef Template < matlab.mixin.SetGetExactNames & matlab.mixin.Copyable
 
                 % write contents into file
                 fid=fopen(filename,'w+');
-                fprintf(fid,'%s\r\n',obj(o).data);
+                fprintf(fid,"%s",sprintf('%s\r\n',obj(o).data));
                 fclose(fid);
             end
 
@@ -97,6 +97,17 @@ classdef Template < matlab.mixin.SetGetExactNames & matlab.mixin.Copyable
             index=obj.findLine(pattern,after_index=inargs.after_index,method=inargs.method);
             obj.data(index)=newline;
         end
+        function insertLines(obj,pattern,newlines,inargs)
+            arguments
+                obj
+                pattern (1,1) string
+                newlines (:,1) string
+                inargs.after_index (1,1) int32 = 1
+                inargs.method (1,1) string {mustBeMember(inargs.method,["startsWith","contains"])}= "startsWith"
+            end
+            index=obj.findLine(pattern,after_index=inargs.after_index,method=inargs.method);
+            obj.data=[obj.data(1:index); newlines;obj.data(index+1:end)];
+        end
         function b=getBlock(obj,startpattern,endpattern,inargs)
             arguments
                 obj
@@ -126,7 +137,7 @@ classdef Template < matlab.mixin.SetGetExactNames & matlab.mixin.Copyable
                 index_start=index_start+1;
                 index_end=index_end-1;
             end
-            obj.data(index_start:index_end)=newblock;
+            obj.data=[obj.data(1:index_start-1);newblock;obj.data(index_end+1:end)];
         end
 
 
