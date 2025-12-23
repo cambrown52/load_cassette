@@ -1,0 +1,2 @@
+classdef (Abstract) BaseCondition
+end
