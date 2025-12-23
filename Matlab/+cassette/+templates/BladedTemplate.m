@@ -1,4 +1,4 @@
-classdef BladedTemplate < cassette.Template
+classdef BladedTemplate < cassette.templates.Template
     %UNTITLED Summary of this class goes here
     %   Detailed explanation goes here
 
@@ -19,6 +19,17 @@ classdef BladedTemplate < cassette.Template
     end
 
     methods
+        function new_obj = new_case(obj,name,folder)
+            arguments
+                obj
+                name (1,1) string
+                folder (1,1) string
+            end
+
+            new_obj=copy(obj);
+            new_obj.name=name;
+            new_obj.file=fullfile(folder,name,"DTBLADED.IN");
+        end
         function b=interpretModule(obj,modulename)
             arguments
                 obj

@@ -22,35 +22,33 @@ classdef Template < matlab.mixin.SetGetExactNames & matlab.mixin.Copyable
             obj.file=file;
             obj.data=readlines(file);
         end
-        function new_obj = new_case(obj,name)
+        function new_obj = new_case(obj,name,folder)
             arguments
                 obj
                 name (1,1) string
+                folder (1,1) string
             end
 
             new_obj=copy(obj);
             new_obj.name=name;
-            new_obj.file=[];
+            new_obj.file=fullfile(folder,name);
         end
-        function write(obj,folder,inargs)
+        function write(obj,inargs)
             arguments
                 obj
-                folder (1,1) string {mustBeFolder}
-                inargs.outputextension(1,1) string = ""
                 inargs.mkdir (1,1) logical = true
             end
 
             O=length(obj);
             for o=1:O
                 % determine filename
-                filename=fullfile(folder,string(obj(o).name)+inargs.outputextension);
-                fprintf("[%i] writing:\t%s\n",o,filename)
-                if inargs.mkdir && ~exist(fileparts(filename),'dir')
-                    mkdir(fileparts(filename))
+                fprintf("[%i] writing:\t%s\n",o,obj(o).file)
+                if inargs.mkdir && ~exist(fileparts(obj(o).file),'dir')
+                    mkdir(fileparts(obj(o).file))
                 end
 
                 % write contents into file
-                fid=fopen(filename,'w+');
+                fid=fopen(obj(o).file,'w+');
                 fprintf(fid,"%s",sprintf('%s\r\n',obj(o).data));
                 fclose(fid);
             end
