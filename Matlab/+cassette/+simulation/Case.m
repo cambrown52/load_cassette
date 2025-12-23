@@ -22,38 +22,43 @@ classdef Case
 
             end
             obj.name=name;
+            obj.wind=wind;
+            obj.turbinestate=turbinestate;
+            if ~isempty(inargs.conditions)
+                obj.conditions=inargs.conditions;
+            end
 
         end
 
-        function run=to_bladed(obj,template,outputfolder)
+        function inputfile=to_bladed(obj,template,outputfolder)
             arguments
                 obj
                 template cassette.templates.BladedTemplate
                 outputfolder (1,1) string {mustBeFolder}
             end
 
-            run=template.new_case(obj.name,outputfolder);
+            inputfile=template.new_case(obj.name,outputfolder);
 
             % add path
-            run.replaceProperty("PATH",fileparts(run.file))
+            inputfile.replaceProperty("PATH",fileparts(inputfile.file))
 
             % specify run name and calculation type:
-            run.replaceProperty("RUNNAME",obj.name)
+            inputfile.replaceProperty("RUNNAME",obj.name)
 
-            index_runconfig=run.findLine("<RunConfiguration>",method="contains");
-            run.replaceXMLProperty("Name",obj.name,after_index=index_runconfig)
+            index_runconfig=inputfile.findLine("<RunConfiguration>",method="contains");
+            inputfile.replaceXMLProperty("Name",obj.name,after_index=index_runconfig)
 
             % replace various properties
             I=length(obj.conditions);
             for i=1:I
-                obj.conditions(i).to_bladed(run)
+                obj.conditions(i).to_bladed(inputfile)
             end
 
             % set turbine state
-            obj.turbinestate.to_bladed(run)
+            obj.turbinestate.to_bladed(inputfile)
 
             % set turbulence block
-            obj.wind.to_bladed(run)
+            obj.wind.to_bladed(inputfile)
 
         end
 

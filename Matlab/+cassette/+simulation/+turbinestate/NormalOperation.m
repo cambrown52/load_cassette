@@ -22,10 +22,10 @@ classdef NormalOperation < cassette.simulation.turbinestate.BaseState
             template.replaceProperty("CALCN",10)
 
             index_runconfig=template.findLine("<RunConfiguration>",method="contains");
-            run.replaceXMLProperty("Calculation",10,after_index=index_runconfig)
+            template.replaceXMLProperty("Calculation",10,after_index=index_runconfig)
 
             % set yaw error
-            run.replaceProperty("INIMD",obj.yaw*pi/180)
+            template.replaceProperty("INIMD",obj.yaw*pi/180)
         end
     end
 end

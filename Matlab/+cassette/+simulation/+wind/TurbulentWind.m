@@ -24,6 +24,7 @@ classdef TurbulentWind < cassette.simulation.wind.BaseWind
             
             obj@cassette.simulation.wind.BaseWind(speed,direction,shear,density)
             obj.TIu=TIu;
+            obj.file=file;
         end
         function t=get.TIv(obj)
             t=obj.TIu*obj.relativeTIv;
@@ -41,8 +42,8 @@ classdef TurbulentWind < cassette.simulation.wind.BaseWind
 
     methods
         function to_bladed(obj,template)
-            run.WINDSEL=template.moduleTurbulentWind(obj.speed,template.RCON.HEIGHT,obj.TIu/100,obj.TIv/100,obj.TIw/100,obj.direction,obj.file);
-            run.replaceProperty("WSHEAR",obj.shear)
+            template.WINDSEL=template.moduleTurbulentWind(obj.speed,template.RCON.HEIGHT,obj.TIu/100,obj.TIv/100,obj.TIw/100,obj.direction,obj.file);
+            template.replaceProperty("WSHEAR",obj.shear)
         end
 
     end
