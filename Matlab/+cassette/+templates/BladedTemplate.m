@@ -6,6 +6,7 @@ classdef BladedTemplate < cassette.templates.Template
     properties (Dependent)
         RCON
         WINDSEL
+        CURRENT
 
 
     end
@@ -15,6 +16,32 @@ classdef BladedTemplate < cassette.templates.Template
 
         function m=get.WINDSEL(obj); m=obj.interpretModule("WINDSEL"); end
         function set.WINDSEL(obj,data); obj.replaceModule("WINDSEL",data); end
+
+        function m=get.CURRENT(obj)
+            if ~obj.existsModule("CURRENT")
+                obj.insertModule("CURRENT",obj.moduleCurrent(),"DISCON")
+            end
+            m=obj.interpretModule("CURRENT");
+        end
+        function set.CURRENT(obj,data) 
+            if ~obj.existsModule("CURRENT")
+                error("Module CURRENT not found in template %s",obj.name)
+            end
+            obj.replaceModule("CURRENT",data); 
+        end
+        function out=existsModule(obj,name)
+            arguments
+                obj
+                name (1,1) string
+            end
+            index=obj.findLine("MSTART "+name);
+            if isempty(index)
+                out=false;
+            else
+                out=true;
+            end
+        end
+
 
     end
 
@@ -47,6 +74,23 @@ classdef BladedTemplate < cassette.templates.Template
             block=obj.struct2lines(data);
             obj.replaceBlock("MSTART "+modulename,"MEND",block,exclude_limits=true)
         end
+        function insertModule(obj,modulename,data,after_module)
+            arguments
+                obj
+                modulename (1,1) string
+                data (1,1) struct
+                after_module (1,1) string
+            end
+            block=[...
+                ""; %blank line to separate modules
+                "MSTART "+modulename;
+                obj.struct2lines(data);
+                "MEND"];
+            
+            index_module=obj.findLine("MSTART "+after_module);
+            obj.insertLines("MEND",block,after_index=index_module)
+
+        end
         function value=interpretProperty(obj,propname)
             arguments
                 obj
@@ -54,25 +98,32 @@ classdef BladedTemplate < cassette.templates.Template
             end
             value=obj.lines2struct(obj.getLine(propname));
         end
-        function replaceProperty(obj,propname,value)
+        function replaceProperty(obj,propname,value,inargs)
              arguments
                 obj
                 propname (1,1) string
                 value (1,1)
+                inargs.module (1,1) string = missing
              end
-             old_value=obj.lines2struct(obj.getLine(propname));
+             if ~ismissing(inargs.module)
+                 index_module=obj.findLine("MSTART "+inargs.module);
+             else
+                 index_module=1;
+             end
+
+             old_value=obj.lines2struct(obj.getLine(propname,after_index=index_module));
              full_propname=string(fields(old_value));
              if propname~=full_propname
                  error("A partial match of property name '%s' was found for property '%s'",propname,full_propname)
              end
-             obj.replaceLine(full_propname,sprintf("%s\t%s",full_propname,string(value)))
+             obj.replaceLine(full_propname,sprintf("%s\t%s",full_propname,string(value)),after_index=index_module)
         end
-        function insertProperty(obj,propname,value,position)
+        function insertProperty(obj,propname,value,after_property)
             arguments
                 obj
                 propname (1,1) string
                 value (1,1)
-                position (1,1)
+                after_property (1,1)
             end
             try 
                 old_value=obj.lines2struct(obj.getLine(propname));
@@ -84,7 +135,7 @@ classdef BladedTemplate < cassette.templates.Template
                 end
             catch
             end
-            obj.insertLines(position,sprintf("%s\t%s",propname,string(value)))
+            obj.insertLines(after_property,sprintf("%s\t%s",propname,string(value)))
 
         end
         
@@ -146,6 +197,20 @@ classdef BladedTemplate < cassette.templates.Template
                 "DIRTIMEP", 0,...
                 "DIRTYPE", "F",...
                 "GUSTPROPAGATION",1);
+        end
+        function block=moduleCurrent()
+            block=struct(...
+                "ICURRW", 0,...
+                "NSVEL", 0,...
+                "NSDEPTH", 0,...
+                "MUCW", 0,...
+                "ICURRS", 0,...
+                "US0Z0", 0,...
+                "MUCS", 0,...
+                "ICURRN", 0,...
+                "NSCURRN", 0,...
+                "MUCN", 0);
+
         end
         function result=lines2struct(lines)
             result=struct();
