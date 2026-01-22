@@ -23,6 +23,7 @@ classdef Case
             end
             obj.name=name;
             obj.wind=wind;
+            obj.wave=wave;
             obj.turbinestate=turbinestate;
             if ~isempty(inargs.conditions)
                 obj.conditions=inargs.conditions;
