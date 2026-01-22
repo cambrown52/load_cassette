@@ -6,7 +6,7 @@ arguments
 end
 
 % check bladed version
-bladed_versions=cassette.Bladed.find_bladed();
+bladed_versions=cassette.Utils.Bladed.find_bladed();
 bladed=bladed_versions(bladed_versions.version==inargs.bladed_version,:);
 if isempty(bladed)
     error("Bladed version %s not found. Available versions: %s",inargs.bladed_version,sprintf("\n%s",bladed_versions.version(:)))
