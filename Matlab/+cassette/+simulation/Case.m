@@ -60,6 +60,9 @@ classdef Case
             % set turbulence block
             obj.wind.to_bladed(inputfile)
 
+            % set wave file
+            obj.wave.to_bladed(inputfile)
+
         end
 
        

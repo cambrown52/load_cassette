@@ -17,6 +17,9 @@ for i=1:I
         versions=[versions;ver];
     end
 end
+if isempty(versions)
+    error("Could not find Bladed ")
+end
 
 versions.version=strip(extractAfter(versions.name,"Bladed"));
 
