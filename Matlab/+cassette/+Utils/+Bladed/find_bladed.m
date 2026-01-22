@@ -1,6 +1,6 @@
 function versions=find_bladed(inargs)
 arguments
-    inargs.install_dirs (:,1) string = ["C:\DNV\"; "C:\DNV GL\"]
+    inargs.install_dirs (:,1) string = ["C:\DNV\"; "C:\DNV GL\";"C:\Program Files\DNV\"]
 end
 
 
