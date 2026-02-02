@@ -18,6 +18,7 @@ classdef (Abstract) BaseWind < matlab.mixin.SetGetExactNames
                 density (1,1) double = 1.225
             end
             obj.speed=speed;
+            cassette.Utils.mustBeDegrees(direction,"Wind Direction")
             obj.direction=direction;
             obj.shear=shear;
             obj.density=density;

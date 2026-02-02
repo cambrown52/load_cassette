@@ -34,7 +34,7 @@ classdef BladedTemplate < cassette.templates.Template
                 obj
                 name (1,1) string
             end
-            index=obj.findLine("MSTART "+name);
+            index=obj.findLine("MSTART "+name,error="returnEmpty");
             if isempty(index)
                 out=false;
             else

@@ -5,25 +5,22 @@ classdef Case
     properties
         name 
         wind
-        wave
         turbinestate
         conditions (:,1) 
 
     end
 
     methods
-        function obj = Case(name,wind,wave,turbinestate,inargs)
+        function obj = Case(name,wind,turbinestate,inargs)
             arguments
                 name (1,1) string
                 wind (1,1)
-                wave (1,1)
                 turbinestate (1,1)
                 inargs.conditions (:,1) =[]
 
             end
             obj.name=name;
             obj.wind=wind;
-            obj.wave=wave;
             obj.turbinestate=turbinestate;
             if ~isempty(inargs.conditions)
                 obj.conditions=inargs.conditions;
@@ -61,8 +58,6 @@ classdef Case
             % set turbulence block
             obj.wind.to_bladed(inputfile)
 
-            % set wave file
-            obj.wave.to_bladed(inputfile)
 
         end
 

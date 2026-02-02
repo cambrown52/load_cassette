@@ -8,12 +8,13 @@ classdef (Abstract) BaseCurrent < matlab.mixin.SetGetExactNames
     end
 
     methods
-        function obj = BaseWind(speed,direction)
+        function obj = BaseCurrent(speed,direction)
             arguments
                 speed (1,1) double
                 direction (1,1) double = 0
             end
             obj.speed=speed;
+            cassette.Utils.mustBeDegrees(direction,"Current Direction")
             obj.direction=direction;
         end
 

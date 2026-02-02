@@ -65,12 +65,22 @@ classdef Template < matlab.mixin.SetGetExactNames & matlab.mixin.Copyable
                 pattern (1,1) string
                 inargs.after_index (1,1) int32 = 1
                 inargs.method (1,1) string {mustBeMember(inargs.method,["startsWith","contains"])}= "startsWith"
+                inargs.error(1,1) string {mustBeMember(inargs.error,["raise","returnEmpty"])}="raise"
             end
             index=NaN;
 
             func=str2func(inargs.method);
-
-            index=find(func(obj.data(inargs.after_index:end),pattern),1)+inargs.after_index-1;
+            index_all=func(obj.data(inargs.after_index:end),pattern);
+            if ~any(index_all)
+                switch inargs.error
+                    case "raise"
+                        error("could not find pattern %s in template %s",pattern,obj.name)
+                    case "returnEmpty"
+                        index=[];
+                end
+            else
+                index=find(index_all,1)+inargs.after_index-1;
+            end
 
         end
 
