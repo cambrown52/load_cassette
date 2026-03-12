@@ -1,4 +1,4 @@
-classdef (Abstract) BaseWind < matlab.mixin.SetGetExactNames
+classdef (Abstract) BaseWind < cassette.simulation.condition.BaseCondition
     %BASE Summary of this class goes here
     %   Detailed explanation goes here
 
@@ -22,6 +22,10 @@ classdef (Abstract) BaseWind < matlab.mixin.SetGetExactNames
             obj.direction=direction;
             obj.shear=shear;
             obj.density=density;
+        end
+
+        function to_bladed(obj,template)
+            error('not implemented')
         end
 
     end

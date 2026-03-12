@@ -11,8 +11,7 @@ classdef NoCurrent < cassette.simulation.current.BaseCurrent
     end
     methods
         function to_bladed(obj,template)
-            
-            error("not yet implemented")
+            template.CURRENT=template.moduleCurrent();
         end
     end
 end

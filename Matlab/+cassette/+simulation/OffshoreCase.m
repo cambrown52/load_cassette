@@ -36,33 +36,15 @@ classdef OffshoreCase < cassette.simulation.Case
             end
             inputfile=to_bladed@cassette.simulation.Case(obj,template,outputfolder);
 
-            % inputfile=template.new_case(obj.name,outputfolder);
-            % 
-            % % add path
-            % inputfile.replaceProperty("PATH",fileparts(inputfile.file))
-            % 
-            % % specify run name and calculation type:
-            % inputfile.replaceProperty("RUNNAME",obj.name)
-            % 
-            % index_runconfig=inputfile.findLine("<RunConfiguration>",method="contains");
-            % inputfile.replaceXMLProperty("Name",obj.name,after_index=index_runconfig)
-            % 
-            % % replace various properties
-            % I=length(obj.conditions);
-            % for i=1:I
-            %     obj.conditions(i).to_bladed(inputfile)
-            % end
-
-            % % set turbine state
-            % obj.turbinestate.to_bladed(inputfile)
-
-            % % set turbulence block
-            % obj.wind.to_bladed(inputfile)
-
             % set wave file
             obj.wave.to_bladed(inputfile)
             obj.current.to_bladed(inputfile)
 
+        end
+        function st=to_struct(obj)
+            st=to_struct@cassette.simulation.Case(obj);
+            st.wave=obj.wave.to_struct();
+            st.current=obj.current.to_struct();
         end
 
        

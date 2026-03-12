@@ -1,4 +1,4 @@
-classdef BaseState
+classdef BaseState < cassette.simulation.condition.BaseCondition
     properties
         yaw
     end

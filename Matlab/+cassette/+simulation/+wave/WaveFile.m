@@ -1,4 +1,4 @@
-classdef WaveFile
+classdef WaveFile < cassette.simulation.condition.BaseCondition
     %WAVEFILE Summary of this class goes here
     %   Detailed explanation goes here
 

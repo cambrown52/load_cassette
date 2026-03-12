@@ -13,5 +13,11 @@ classdef SteadyWind < cassette.simulation.wind.BaseWind
             end
             obj@cassette.simulation.wind.BaseWind(speed,direction,windshear,density)
         end
+        function to_bladed(obj,template)
+            template.WINDSEL=template.moduleSteadyWind(obj.speed,template.RCON.HEIGHT,obj.direction*pi/180);
+            template.replaceProperty("WSHEAR",obj.shear)
+        end
+
+        
     end
 end

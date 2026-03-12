@@ -58,7 +58,22 @@ classdef Case
             % set turbulence block
             obj.wind.to_bladed(inputfile)
 
+            inputfile.metadata=obj.to_struct();
 
+        end
+
+        function st=to_struct(obj)
+            st=struct();
+            
+            st.ObjectType=class(obj);
+            st.name=obj.name;
+            st.wind=obj.wind.to_struct();
+            st.turbinestate=obj.turbinestate.to_struct();
+            I=length(obj.conditions);
+            st.conditions=cell(I,1);
+            for i=1:I
+                st.conditions{i}=obj.conditions(i).to_struct();
+            end
         end
 
        

@@ -5,6 +5,7 @@ classdef Template < matlab.mixin.SetGetExactNames & matlab.mixin.Copyable
         name
         file
         data
+        metadata (1,1) struct
     end
 
     methods
@@ -41,16 +42,27 @@ classdef Template < matlab.mixin.SetGetExactNames & matlab.mixin.Copyable
 
             O=length(obj);
             for o=1:O
+                
                 % determine filename
                 fprintf("[%i] writing:\t%s\n",o,obj(o).file)
-                if inargs.mkdir && ~exist(fileparts(obj(o).file),'dir')
-                    mkdir(fileparts(obj(o).file))
+                outputfolder=fileparts(obj(o).file);
+                if inargs.mkdir && ~exist(outputfolder,'dir')
+                    mkdir(outputfolder)
                 end
 
                 % write contents into file
                 fid=fopen(obj(o).file,'w+');
                 fprintf(fid,"%s",sprintf('%s\r\n',obj(o).data));
                 fclose(fid);
+
+                % write metadata
+                if ~isempty(obj(o).metadata)
+                    writelines(...
+                        jsonencode(obj(o).metadata,"PrettyPrint",true),...
+                        fullfile(outputfolder,obj(o).name+".metadata.json")...
+                        );
+                end
+
             end
 
         end

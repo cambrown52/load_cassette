@@ -25,7 +25,7 @@ classdef BladedTemplate < cassette.templates.Template
         end
         function set.CURRENT(obj,data) 
             if ~obj.existsModule("CURRENT")
-                error("Module CURRENT not found in template %s",obj.name)
+                obj.insertModule("CURRENT",obj.moduleCurrent(),"DISCON")
             end
             obj.replaceModule("CURRENT",data); 
         end
@@ -40,6 +40,47 @@ classdef BladedTemplate < cassette.templates.Template
             else
                 out=true;
             end
+        end
+
+        function [nodes,members]=interpretTowerGeom(obj)
+
+            % read bladed modules
+            TGEOM=obj.interpretModule("TGEOM");
+            TMASS=obj.interpretModule("TMASS");
+
+            % interpret node coordinates
+            nodes=array2table(TGEOM.TCLOCAL,'VariableNames',["X" "Y" "Z"]);
+            nodes.id=(1:height(nodes))';
+            nodes=movevars(nodes,"id","Before",1);
+
+            % interpret member geometry
+            members_w=table(TGEOM.ELSTNS,TGEOM.TDIAM,TMASS.WALLTHICK,VariableNames=["NODE", "TDIAM", "WALLTHICK"]);
+            members_w.Length=arrayfun(@(id_1,id_2)norm(nodes{id_1,["X" "Y" "Z"]}-nodes{id_2,["X" "Y" "Z"]}),members_w.NODE(:,1),members_w.NODE(:,2));
+            members_w.id=(1:height(members_w))';
+
+            % reshape members table
+            members_1=members_w;
+            members_1.End(:)=1;
+            members_1.NODE(:,2)=[];
+            members_1.TDIAM(:,2)=[];
+            members_1.WALLTHICK(:,2)=[];
+            members_1.DistanceAlongMember(:)=0;
+
+            members_2=members_w;
+            members_2.End(:)=2;
+            members_2.NODE(:,1)=[];
+            members_2.TDIAM(:,1)=[];
+            members_2.WALLTHICK(:,1)=[];
+            members_2.DistanceAlongMember=members_2.Length;
+
+            members=sortrows([members_1;members_2],"id");
+
+            % add member node height
+            members.z=nodes.Z(members.NODE);
+            members.zSBD=members.z+TGEOM.SEADEPTH;
+            members=movevars(members,"id","Before",1);
+            
+
         end
 
 
@@ -165,9 +206,43 @@ classdef BladedTemplate < cassette.templates.Template
                 "</"+propname+">",...
                 string(value));
         end
+        function lines=getXMLBlock(obj,blockname,inargs)
+            arguments
+                obj
+                blockname (1,1) string
+                inargs.after_index (1,1) int32 = 1
+            end
+            startindex=obj.findLine("<"+blockname+">",method="contains",after_index=inargs.after_index);
+            endindex=obj.findLine("</"+blockname+">",method="contains",after_index=startindex);
+            lines=obj.data(startindex:endindex);
+        end
+        function replaceXMLBlock(obj,blockname,block)
+            arguments
+                obj
+                blockname (1,1) string
+                block
+            end
+            obj.replaceBlock("<"+blockname+">","</"+blockname+">",block,exclude_limits=true)
+        end
 
     end
     methods (Static)
+        function block=moduleSteadyWind(wind_speed,reference_height,wind_dir)
+            arguments
+                wind_speed (1,1) double
+                reference_height (1,1) double
+                wind_dir (1,1) double
+            end
+            cassette.Utils.mustBeRadians(wind_dir)
+            block=struct("WMODEL",	1,...
+                "MEANHTTYPE",	1,...
+                "USPD",	 wind_speed,...
+                "REFHT",	 reference_height,...
+                "WDIR",	 wind_dir,...
+                "FLINC",	 0);
+        end
+
+
 
         function block=moduleTurbulentWind(wind_speed,reference_height,ti_u,ti_v,ti_w,wind_dir,wind_file)
             arguments
@@ -218,17 +293,31 @@ classdef BladedTemplate < cassette.templates.Template
 
             I=length(lines);
             for i=1:I
-                [token,remainder]=strtok(lines(i),[" ", sprintf("\t")]);
-                parsed_str=strip(strsplit(remainder,','));
-                parsed_num=str2double(parsed_str);
-                if all(isnan(parsed_num))
-                    parsed=parsed_str;
+                line=strip(lines(i),"'");
+                if isletter(line{1}(1))
+                    [token,remainder]=strtok(lines(i),[" ", sprintf("\t")]);
+                    token=strip(token,"'");
+                    parsed_str=strsplit(strip(remainder),[" ",","]);
+                    parsed_num=str2double(parsed_str);
+                    if all(isnan(parsed_num))
+                        parsed=parsed_str;
+                    else
+                        parsed=parsed_num;
+                    end
+                    result.(token)=parsed;
                 else
-                    parsed=parsed_num;
+                    parsed_str=strsplit(strip(line),[","," "]);
+                    parsed_num=str2double(parsed_str);
+                    if all(isnan(parsed_num))
+                        parsed=parsed_str;
+                    else
+                        parsed=parsed_num;
+                    end
+                    result.(token)=[result.(token);parsed];
                 end
-                result.(token)=parsed;
             end
         end
+
         function lines=struct2lines(input)
             
             properties=string(fields(input));

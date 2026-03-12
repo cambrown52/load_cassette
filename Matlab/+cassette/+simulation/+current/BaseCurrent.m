@@ -1,4 +1,4 @@
-classdef (Abstract) BaseCurrent < matlab.mixin.SetGetExactNames
+classdef (Abstract) BaseCurrent < cassette.simulation.condition.BaseCondition
     %BASE Summary of this class goes here
     %   Detailed explanation goes here
 
