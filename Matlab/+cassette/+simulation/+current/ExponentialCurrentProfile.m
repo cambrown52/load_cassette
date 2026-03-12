@@ -21,7 +21,10 @@ classdef ExponentialCurrentProfile < cassette.simulation.current.BaseCurrent
             CURRENT.ICURRS=1;
             CURRENT.US0Z0=obj.speed;
             CURRENT.MUCS=obj.direction*pi/180;
-            CURRENT.
+            if abs(obj.exponent/(1/7)-1)>100*eps
+                CURRENT.USERSHEAR=-1;
+                CURRENT.CSHEAR=obj.exponent;
+            end
             template.CURRENT=CURRENT;
         end
     end
