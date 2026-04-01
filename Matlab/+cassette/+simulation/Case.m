@@ -65,8 +65,8 @@ classdef Case
         function st=to_struct(obj)
             st=struct();
             
-            st.ObjectType=class(obj);
-            st.name=obj.name;
+            st.case.ObjectType=class(obj);
+            st.case.name=obj.name;
             st.wind=obj.wind.to_struct();
             st.turbinestate=obj.turbinestate.to_struct();
             I=length(obj.conditions);

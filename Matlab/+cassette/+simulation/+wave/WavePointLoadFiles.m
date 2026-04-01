@@ -127,5 +127,57 @@ classdef WavePointLoadFiles < cassette.simulation.condition.BaseCondition
 
             
         end
+        function st=to_struct(obj)
+            st=struct();
+            st.ObjectType=string(class(obj));
+            st.jsonfile=obj.jsonfile;
+
+            seastate_props=[
+                %"input_Filename"
+                %"sea_wko_filename"
+                %"sea_wko_seed"
+                "env_WindSpeed"
+                "sea_WaveDirection"
+                "sea_WaterDensity"
+                "sea_WaterDepth"
+                "sea_CurrentDirection"
+                "sea_CurrentExp"
+                "sea_CurrentSpeed"
+                "sea_WaveHeight"
+                "sea_WavePeriod"
+                %"prescribedF_Filename"
+                %"prescribedF_Height"
+                %"is_external_active"
+                %"logfile_out"
+                %"DLC"
+                "sea_state"
+                "sea_wko_seed_str"
+                %"wsp_str"
+                %"wd_str"
+                %"seed_str"
+                %"folder_lvl1"
+                %"folder_lvl2"
+                %"folder_lvl3"
+                %"file_path"
+                %"file_basename"
+                ];
+
+            I=length(seastate_props);
+            for i=1:I
+                st.(seastate_props(i))=obj.jsondata.seastate.(seastate_props(i));
+            end
+
+
+
+            st.num_pointloadfiles=height(obj.pointloadfiles);
+            st.num_nodes=height(obj.nodedata);
+            st.min_D=min(obj.nodedata.D);
+            st.max_D=max(obj.nodedata.D);
+            st.min_h=min(obj.nodedata.h);
+            st.max_h=max(obj.nodedata.h);
+            st.mean_Cd=mean(obj.nodedata.Cd);
+            st.mean_Cm=mean(obj.nodedata.Cm);
+            
+        end
     end
 end

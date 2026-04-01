@@ -2,6 +2,10 @@ classdef BladedTemplate < cassette.templates.Template
     %UNTITLED Summary of this class goes here
     %   Detailed explanation goes here
 
+    properties (Hidden,SetAccess=private)
+        towerGeom = []
+    end
+        
 
     properties (Dependent)
         RCON
@@ -43,42 +47,49 @@ classdef BladedTemplate < cassette.templates.Template
         end
 
         function [nodes,members]=interpretTowerGeom(obj)
+            if ~isempty(obj.towerGeom)
+                nodes=obj.towerGeom.nodes;
+                members=obj.towerGeom.members;
+            else
 
-            % read bladed modules
-            TGEOM=obj.interpretModule("TGEOM");
-            TMASS=obj.interpretModule("TMASS");
+                % read bladed modules
+                TGEOM=obj.interpretModule("TGEOM");
+                TMASS=obj.interpretModule("TMASS");
 
-            % interpret node coordinates
-            nodes=array2table(TGEOM.TCLOCAL,'VariableNames',["X" "Y" "Z"]);
-            nodes.id=(1:height(nodes))';
-            nodes=movevars(nodes,"id","Before",1);
+                % interpret node coordinates
+                nodes=array2table(TGEOM.TCLOCAL,'VariableNames',["X" "Y" "Z"]);
+                nodes.id=(1:height(nodes))';
+                nodes=movevars(nodes,"id","Before",1);
 
-            % interpret member geometry
-            members_w=table(TGEOM.ELSTNS,TGEOM.TDIAM,TMASS.WALLTHICK,VariableNames=["NODE", "TDIAM", "WALLTHICK"]);
-            members_w.Length=arrayfun(@(id_1,id_2)norm(nodes{id_1,["X" "Y" "Z"]}-nodes{id_2,["X" "Y" "Z"]}),members_w.NODE(:,1),members_w.NODE(:,2));
-            members_w.id=(1:height(members_w))';
+                % interpret member geometry
+                members_w=table(TGEOM.ELSTNS,TGEOM.TDIAM,TMASS.WALLTHICK,VariableNames=["NODE", "TDIAM", "WALLTHICK"]);
+                members_w.Length=arrayfun(@(id_1,id_2)norm(nodes{id_1,["X" "Y" "Z"]}-nodes{id_2,["X" "Y" "Z"]}),members_w.NODE(:,1),members_w.NODE(:,2));
+                members_w.id=(1:height(members_w))';
 
-            % reshape members table
-            members_1=members_w;
-            members_1.End(:)=1;
-            members_1.NODE(:,2)=[];
-            members_1.TDIAM(:,2)=[];
-            members_1.WALLTHICK(:,2)=[];
-            members_1.DistanceAlongMember(:)=0;
+                % reshape members table
+                members_1=members_w;
+                members_1.End(:)=1;
+                members_1.NODE(:,2)=[];
+                members_1.TDIAM(:,2)=[];
+                members_1.WALLTHICK(:,2)=[];
+                members_1.DistanceAlongMember(:)=0;
 
-            members_2=members_w;
-            members_2.End(:)=2;
-            members_2.NODE(:,1)=[];
-            members_2.TDIAM(:,1)=[];
-            members_2.WALLTHICK(:,1)=[];
-            members_2.DistanceAlongMember=members_2.Length;
+                members_2=members_w;
+                members_2.End(:)=2;
+                members_2.NODE(:,1)=[];
+                members_2.TDIAM(:,1)=[];
+                members_2.WALLTHICK(:,1)=[];
+                members_2.DistanceAlongMember=members_2.Length;
 
-            members=sortrows([members_1;members_2],"id");
+                members=sortrows([members_1;members_2],"id");
 
-            % add member node height
-            members.z=nodes.Z(members.NODE);
-            members.zSBD=members.z+TGEOM.SEADEPTH;
-            members=movevars(members,"id","Before",1);
+                % add member node height
+                members.z=nodes.Z(members.NODE);
+                members.zSBD=members.z+TGEOM.SEADEPTH;
+                members=movevars(members,"id","Before",1);
+
+                obj.towerGeom=struct("nodes",nodes,"members",members);
+            end
             
 
         end

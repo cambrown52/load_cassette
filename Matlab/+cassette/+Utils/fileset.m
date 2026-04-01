@@ -72,6 +72,65 @@ classdef fileset < matlab.mixin.SetGetExactNames
             end
             filtered_obj=obj(index);
         end
+        function filepath=match(obj,data,inargs)
+            arguments
+                obj
+                data table
+                inargs.fileset_keys = missing
+                inargs.data_keys = missing
+            end
+            if ismissing(inargs.data_keys)
+                inargs.data_keys=data.Properties.VariableNames;
+            end
+            if ismissing(inargs.fileset_keys)
+                inargs.fileset_keys=inargs.data_keys;
+            end
+
+            if ~all(ismember(inargs.data_keys,data.Properties.VariableNames))
+                error('Right Keys not found in the data table to match:\n%s',sprintf("%s\n",setdiff(inargs.data_keys,data.Properties.VariableNames)))
+            end
+            if ~all(ismember(inargs.fileset_keys,obj.propnames))
+                error('Left Keys not found in the fileset:\n%s',sprintf("%s\n",setdiff(inargs.fileset_keys,obj.propnames)))
+            end
+
+            % match wind files from available files
+            fileset_data=obj.to_table;
+            data.rowid=(1:height(data))';
+
+            if height(unique(data(:,inargs.data_keys))) == height(data)
+                %each row of data table is unique, only one match can be made
+                matches=outerjoin(data,fileset_data,"LeftKeys",inargs.data_keys,"RightKeys",inargs.fileset_keys,"MergeKeys",true,"Type","left");%,"LeftVariables",["rowid",],"RightVariables",["filepath",]);
+                matches=sortrows(matches,"rowid");
+            else
+
+                [data.groupid,groups]=findgroups(data(:,inargs.data_keys));
+                groups.groupid=(1:height(groups))';
+
+                options=outerjoin(groups,fileset_data,"LeftKeys",inargs.data_keys,"RightKeys",inargs.fileset_keys,"MergeKeys",true,"Type","left");%,"LeftVariables",["rowid",],"RightVariables",["filepath",]);
+                options=sortrows(options,"groupid");
+
+                matches=data;
+                matches.filepath(:)=string(missing);
+                for groupid=1:height(groups)
+                    groupoptions=options(options.groupid==groupid,:);
+                    rowindex=matches.groupid==groupid;
+                    
+                    Nrows=sum(rowindex);
+                    Noptions=height(groupoptions);
+
+                    matchindex=repmat((1:Noptions)',ceil(Nrows/Noptions),1);
+                    matchindex=matchindex(1:Nrows);
+
+                    matches.filepath(rowindex)=groupoptions.filepath(matchindex);
+                end
+            end
+
+            filepath=matches.filepath;
+            if any(ismissing(filepath))
+                warning("not all rows of table were matched with a file from fileset")
+            end
+
+        end
         function t=to_table(obj)
 
             function st=addmissingparams(st,col)
