@@ -109,7 +109,7 @@ classdef BladedTemplate < cassette.templates.ASCIITemplate
             new_obj.name=name;
             new_obj.file=fullfile(folder,name,"DTBLADED.IN");
         end
-        
+
         function inputfile=merge(obj,simulation,outputfolder)
             inputfile=simulation.to_bladed(obj,outputfolder);
         end
@@ -233,18 +233,32 @@ classdef BladedTemplate < cassette.templates.ASCIITemplate
                 obj
                 blockname (1,1) string
                 inargs.after_index (1,1) int32 = 1
+                inargs.remove_blockname (1,1) logical =false
             end
             startindex=obj.findLine("<"+blockname+">",method="contains",after_index=inargs.after_index);
             endindex=obj.findLine("</"+blockname+">",method="contains",after_index=startindex);
             lines=obj.data(startindex:endindex);
+            if inargs.remove_blockname
+                lines(1)=extractAfter(lines(1),"<"+blockname+">");
+                lines(end)=extractBefore(lines(end),"</"+blockname+">");
+            end
         end
-        function replaceXMLBlock(obj,blockname,block)
+        function replaceXMLBlock(obj,blockname,block,inargs)
             arguments
                 obj
                 blockname (1,1) string
                 block
+                inargs.after_index (1,1) int32 = 1
+                inargs.add_blockname (1,1) logical =true
             end
-            obj.replaceBlock("<"+blockname+">","</"+blockname+">",block,exclude_limits=true)
+            startindex=obj.findLine("<"+blockname+">",method="contains",after_index=inargs.after_index);
+            endindex=obj.findLine("</"+blockname+">",method="contains",after_index=startindex);
+            if inargs.add_blockname
+                block(1)= extractBefore(obj.data(startindex),"<"+blockname+">")+"<"+blockname+">"+block(1);
+                block(end)=block(end)+"</"+blockname+">"+extractAfter(obj.data(endindex),"</"+blockname+">");
+            end
+            obj.data=[obj.data(1:startindex-1);block;obj.data(endindex+1:end)];
+
         end
 
     end

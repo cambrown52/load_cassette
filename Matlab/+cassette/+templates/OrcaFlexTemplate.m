@@ -13,6 +13,19 @@ classdef OrcaFlexTemplate < cassette.templates.Template
                 m=obj.ofxmodel;
             end
         end
+        function new_obj = new_case(obj,name,folder)
+            arguments
+                obj
+                name (1,1) string
+                folder (1,1) string
+            end
+
+            new_obj=copy(obj);
+            new_obj.name=name;
+            new_obj.file=fullfile(folder,name+".dat");
+            new_obj.ofxmodel=ofxModel(obj.file);
+        end
+
 
         function write_(obj)
             arguments
@@ -20,6 +33,9 @@ classdef OrcaFlexTemplate < cassette.templates.Template
             end
             % write contents into file
             obj.ofxmodel.SaveData(obj.file)
+        end
+        function merge(obj,simulation,outputfolder)
+            error("not implemented")
         end
     end
 

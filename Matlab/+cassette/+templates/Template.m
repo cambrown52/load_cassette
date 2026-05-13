@@ -6,11 +6,9 @@ classdef Template < matlab.mixin.SetGetExactNames & matlab.mixin.Copyable
         file
         metadata (1,1) struct
     end
-    methods (Abstract,Access=protected)
-        write_(obj)
-    end
     methods (Abstract)
-        merge(obj,simulation)
+        write_(obj)
+        merge(obj,simulation,outputfolder)
     end
 
     methods

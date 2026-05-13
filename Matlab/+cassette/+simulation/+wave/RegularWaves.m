@@ -30,7 +30,12 @@ classdef RegularWaves < cassette.simulation.condition.BaseCondition
         end
 
         function to_orcaflex(obj,template)
-            template.data.Environment.
+            env=template.ofxmodel.environment;
+            env.NumberOfWaveTrains=1;
+            env.WaveType="Airy";
+            env.WaveDirection=obj.direction;
+            env.WaveHeight=obj.H;
+            env.WavePeriod=obj.T;
         end
 
         function to_bladed(obj,template)

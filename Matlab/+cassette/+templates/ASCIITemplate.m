@@ -8,7 +8,7 @@ classdef ASCIITemplate < cassette.templates.Template
             obj@cassette.templates.Template(file,name)
             obj.data=readlines(file);
         end
-
+    
         function write_(obj)
             arguments
                 obj (1,1) cassette.templates.ASCIITemplate
