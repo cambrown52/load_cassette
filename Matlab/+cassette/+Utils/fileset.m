@@ -101,6 +101,14 @@ classdef fileset < matlab.mixin.SetGetExactNames
                 %each row of data table is unique, only one match can be made
                 matches=outerjoin(data,fileset_data,"LeftKeys",inargs.data_keys,"RightKeys",inargs.fileset_keys,"MergeKeys",true,"Type","left");%,"LeftVariables",["rowid",],"RightVariables",["filepath",]);
                 matches=sortrows(matches,"rowid");
+
+                % if multiple matches were available, keep only the first match
+                if height(matches)>height(data)
+                    matches.matchid=(1:height(matches))';
+                    keepmatch=splitapply(@(id)min(id),matches.matchid,matches.rowid);
+                    matches=matches(ismember(matches.matchid,keepmatch),:);
+                    matches.matchid=[];
+                end
             else
 
                 [data.groupid,groups]=findgroups(data(:,inargs.data_keys));
