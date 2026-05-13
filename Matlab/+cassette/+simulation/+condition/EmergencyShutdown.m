@@ -15,6 +15,10 @@ classdef EmergencyShutdown < cassette.simulation.condition.BaseCondition
 
 
         function to_bladed(obj,template)
+            template.replaceProperty("GENERATOR",1,module="SAFETYSYSTEM")
+            lineid=template.findLine("GENERATOR");
+            template.replaceProperty("GENERATOR",1,after_index=lineid+1)
+
             template.replaceProperty("TIME",2,module="SAFETYSYSTEM")
             template.replaceProperty("TIMEVAL",obj.shutdowntime,module="SAFETYSYSTEM")
         end
