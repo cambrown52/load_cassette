@@ -30,7 +30,7 @@ classdef BladedOrcaFlexTemplate < cassette.templates.BladedTemplate
             % adjust json data before interpretting
             index=contains(block,["OrcaFlexAPIDllPath", "OrcaFlexInputModelPath"]);
             block(index)=replace(block(index),"\","\\");
-            block=block.join(sprintf("\n"));
+            block=block.join(newline);
 
             settings=jsondecode(block);
         end

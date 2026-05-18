@@ -4,6 +4,13 @@ classdef OrcaFlexTemplate < cassette.templates.Template
     properties
         ofxmodel
     end
+    properties (Dependent)
+        ofxturbine
+        rotor_diameter
+    end
+    properties (SetAccess=private)
+        hub_height
+    end
     methods
         function m=get.ofxmodel(obj)
             if isempty(obj.ofxmodel)
@@ -36,6 +43,41 @@ classdef OrcaFlexTemplate < cassette.templates.Template
         end
         function merge(obj,simulation,outputfolder)
             error("not implemented")
+        end
+        function wtg=get.ofxturbine(obj)
+            obj=obj.ofxmodel.objects;
+            obj_type=cellfun(@(obj)obj.type,obj);
+            obj_class=string(cellfun(@class,obj));
+            wtg=obj(obj_type==ofx.otTurbine);
+            if length(wtg)>1
+                error("too many turbines found in model")
+            else
+                wtg=wtg{1};
+            end
+        end
+        function D=get.rotor_diameter(obj)
+            wtg=obj.ofxturbine;
+            D=2*(wtg.HubRadius+max(wtg.BladeSectionCumulativeLength));
+        end
+        function hh=get.hub_height(obj)
+            if isempty(obj.hub_height)
+  
+                %create object method
+                hub=obj.ofxmodel.CreateObject(ofx.otConstraint,"hub_center");
+                hub.Connection=obj.ofxturbine.Name;
+                hub.InFrameInitialX=0;
+                hub.InFrameInitialY=0;
+                hub.InFrameInitialZ=0;
+                hub.Connection="Fixed";
+                hh=hub.InFrameInitialZ;
+                obj.ofxmodel.DestroyObject(hub);
+
+                obj.hub_height=hh;
+            else
+                hh=obj.hub_height;
+            end
+
+
         end
     end
 

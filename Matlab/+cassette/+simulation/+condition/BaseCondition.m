@@ -3,6 +3,9 @@ classdef (Abstract) BaseCondition < matlab.mixin.Heterogeneous & matlab.mixin.Se
         function to_bladed(obj,template)
             error('not implemented in class %s',class(obj))
         end
+        function to_orcaflex(obj,template)
+            error('not implemented in class %s',class(obj))
+        end
     end
     methods
         function st=to_struct(obj)

@@ -43,6 +43,15 @@ classdef NoWaves < cassette.simulation.condition.BaseCondition
 
             template.replaceXMLProperty("SpectrumFilePath",seafile);
         end
+        function to_orcaflex(obj,template)
+            env=template.ofxmodel.environment;
+            env.NumberOfWaveTrains=1;
+            env.WaveType="Airy";
+            env.WaveDirection=0;
+            env.WaveHeight=0;
+            env.WavePeriod=10;
+
+        end
 
     end
 end
