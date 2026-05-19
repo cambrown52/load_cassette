@@ -55,6 +55,9 @@ classdef OrcaFlexTemplate < cassette.templates.Template
                 wtg=wtg{1};
             end
         end
+        function nac=get.ofxnacelle(obj)
+            nac=obj.ofxmodel(obj.ofxturbine.Connection);
+        end
         function D=get.rotor_diameter(obj)
             wtg=obj.ofxturbine;
             D=2*(wtg.HubRadius+max(wtg.BladeSectionCumulativeLength));

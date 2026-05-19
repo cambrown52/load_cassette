@@ -30,7 +30,7 @@ classdef SteadyWind < cassette.simulation.wind.BaseWind
                 hh=template.hub_height;
                 D=template.rotor_diameter;
                 
-                z=[0:10:hh-D/2 hh-1.1*(D/2:D/11:D/2)];
+                z=sort(unique([0:10:hh-D/2 hh-1.1*(D/2:D/11:D/2)]));
                 factor=(z./hh).^obj.shear;
                 
                 shear=template.ofxmodel.CreateObject(ofx.otVerticalVariationFactor);
@@ -38,11 +38,10 @@ classdef SteadyWind < cassette.simulation.wind.BaseWind
                 shear.IndependendValue=z;
                 shear.DependentValue=factor;
 
-            end
-
-
+                env.VerticalWindVariationFactor=shear.Name;
 
             end
+            
 
             % input density converted to model units
             env.AirDensity=obj.density*template.ofxmodel.UnitsConversionFactor('MM.LL^-3');

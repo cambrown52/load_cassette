@@ -27,5 +27,12 @@ classdef Parked< cassette.simulation.turbinestate.BaseState
             % set yaw error
             template.replaceProperty("INIMD",obj.yaw*pi/180)
         end
+        function to_orcaflex(obj,template)
+            template.ofxnacelle.InitialRotation3=obj.yaw;
+            template.ofxturbine.GeneratorMode="Specified rotation";
+            template.ofxturbine.GeneratorMotionController=0;
+            template.ofxturbine.PitchController="(none)";
+            template.ofxturbine.IncludedInduction="None";
+        end
     end
 end

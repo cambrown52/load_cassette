@@ -12,9 +12,6 @@ classdef BaseState < cassette.simulation.condition.BaseCondition
            cassette.Utils.mustBeDegrees(yaw,"Yaw position")
            obj.yaw=yaw;
        end
-       function to_bladed(obj,template)
-           %overwrite by child class
-       end
    end
 
 end

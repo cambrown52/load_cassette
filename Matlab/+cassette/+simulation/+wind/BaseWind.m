@@ -24,9 +24,6 @@ classdef (Abstract) BaseWind < cassette.simulation.condition.BaseCondition
             obj.density=density;
         end
 
-        function to_bladed(obj,template)
-            error('not implemented')
-        end
 
     end
 end

@@ -28,5 +28,12 @@ classdef SimulationTime < cassette.simulation.condition.BaseCondition
             template.replaceProperty("ENDT",obj.total_time)
             template.replaceProperty("TLOGBUF",obj.output_buffer)
         end
+        function to_orcaflex(obj,template)
+            gen=template.ofxmodel.general;
+            gen.StartTime='~';
+            gen.StageCount=2;
+            gen.StageDuration(1)=obj.initialization_time;
+            gen.StageDuration(2)=obj.simulation_time;
+        end
     end
 end

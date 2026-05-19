@@ -7,7 +7,7 @@ classdef ExponentialCurrentProfile < cassette.simulation.current.BaseCurrent
     methods
         function obj = ExponentialCurrentProfile(speed,direction,exponent)
             arguments
-                speed
+                speed % current speed at the surface
                 direction
                 exponent (1,1) double {mustBePositive}= 1/7
             end
@@ -26,6 +26,15 @@ classdef ExponentialCurrentProfile < cassette.simulation.current.BaseCurrent
                 CURRENT.CSHEAR=obj.exponent;
             end
             template.CURRENT=CURRENT;
+        end
+        function to_orcaflex(obj,template)
+            env=template.ofxmodel.environment;
+            env.VerticalCurrentVariationMethod='Power law';
+            env.CurrentSpeedAtSeabed=0;
+            env.CurrentSpeedAtSurface=obj.speed;
+            env.RefCurrentDirection=obj.direction;
+            env.CurrentExponent=1/obj.exponent;
+
         end
     end
 end

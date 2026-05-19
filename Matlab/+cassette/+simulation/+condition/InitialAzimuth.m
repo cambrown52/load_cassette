@@ -16,5 +16,8 @@ classdef InitialAzimuth < cassette.simulation.condition.BaseCondition
         function to_bladed(obj,template)
             template.replaceProperty("INAZI",obj.azimuth*pi/180,module="INITCON");
         end
+        function to_orcaflex(obj,template)
+            template.ofxturbine.InitialRotorAngle=obj.azimuth;
+        end
     end
 end
