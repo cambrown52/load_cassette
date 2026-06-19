@@ -27,5 +27,14 @@ classdef NormalOperation < cassette.simulation.turbinestate.BaseState
             % set yaw error
             template.replaceProperty("INIMD",obj.yaw*pi/180)
         end
+       function to_orcaflex(obj,template)
+            template.ofxnacelle.InitialRotation3=obj.yaw;
+            wtg=template.ofxturbine;
+            wtg.IncludedInduction="Axial and tangential";
+            wtg.GeneratorMode="Specified torque";
+            wtg.GeneratorTorqueController=template.ofxcontroller.name;
+            wtg.PitchController=template.ofxcontroller.name;
+            wtg.InitialRotorAngVel=.3;
+        end
     end
 end
