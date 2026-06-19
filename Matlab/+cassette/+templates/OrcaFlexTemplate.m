@@ -3,7 +3,7 @@ classdef OrcaFlexTemplate < cassette.templates.Template
     %   Detailed explanation goes here
     properties
         ofxmodel
-        outputtype (1,1) string {mustBeMember(filetype,["yml","dat"])}="yml";
+        outputtype (1,1) string {mustBeMember(outputtype,["yml","dat"])}="yml";
     end
     properties (Dependent)
         ofxturbine

@@ -218,7 +218,7 @@ classdef BladedTemplate < cassette.templates.ASCIITemplate
                 if propname~=full_propname
                     error("A partial match of property name '%s' was found for property '%s'",propname,full_propname)
                 else
-                    error("template already contains property '%s'= %s",full_propname,str(old_value.(full_propname)))
+                    error("template already contains property '%s'= %s",full_propname,string(old_value.(full_propname)))
                 end
             catch
             end

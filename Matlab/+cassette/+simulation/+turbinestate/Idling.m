@@ -38,7 +38,7 @@ classdef Idling < cassette.simulation.turbinestate.BaseState
             template.replaceProperty("INIMD",obj.yaw*pi/180)
 
             % set idling pitch angle
-            if ~isemtpy(obj.idlingpitchangle)
+            if ~isempty(obj.idlingpitchangle)
                 error('Varying from default idling pitch angle is not yet implemented for Bladed.')
             end
         end
