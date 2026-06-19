@@ -3,12 +3,22 @@ classdef Idling < cassette.simulation.turbinestate.BaseState
     %   Detailed explanation goes here
 
     properties
-
+        idlingpitchangle
+    end
+    properties (Hidden)
+        default_idlingpitchangle = 90
     end
 
     methods
-        function obj = Idling(yaw)
+        function obj = Idling(yaw,idlingpitchangle)
+            arguments
+                yaw
+                idlingpitchangle (1,1) double =NaN
+            end
             obj@cassette.simulation.turbinestate.BaseState(yaw)
+            if ~isnan(idlingpitchangle)
+                obj.idlingpitchangle=idlingpitchangle;
+            end
         end
     end
     methods
@@ -26,12 +36,23 @@ classdef Idling < cassette.simulation.turbinestate.BaseState
 
             % set yaw error
             template.replaceProperty("INIMD",obj.yaw*pi/180)
+
+            % set idling pitch angle
+            if ~isemtpy(obj.idlingpitchangle)
+                error('Varying from default idling pitch angle is not yet implemented for Bladed.')
+            end
         end
         function to_orcaflex(obj,template)
             template.ofxnacelle.InitialRotation3=obj.yaw;
             template.ofxturbine.GeneratorMode="Specified torque";
             template.ofxturbine.GeneratorTorqueController=0;
             template.ofxturbine.PitchController="(none)";
+            template.ofxturbine.PitchControlMode='Common';
+            if ~isempty(obj.idlingpitchangle)
+                template.ofxturbine.InitialPitch(1)=obj.idlingpitchangle;
+            else
+                template.ofxturbine.InitialPitch(1)=obj.default_idlingpitchangle;
+            end
             template.ofxturbine.IncludedInduction="None";
         end
     end

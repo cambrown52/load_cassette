@@ -13,7 +13,7 @@ classdef Case
     methods
         function obj = Case(name,wind,turbinestate,inargs)
             arguments
-                name (1,1) string
+                name (1,1)
                 wind (1,1)
                 turbinestate (1,1)
                 inargs.conditions (:,1) =[]
@@ -28,38 +28,48 @@ classdef Case
 
         end
 
-        function inputfile=to_bladed(obj,template,outputfolder)
+        function v=get_variables(obj)
+            v=[];
+            if isa(obj.name,"cassette.variables.BaseVariable")
+                v=[v;obj.name];
+            end
+            v=[v; get_variables([obj.wind;obj.turbinestate;obj.conditions])];
+        end
+
+
+        function n=number_of_combinations(obj)
+            v=obj.get_variables();
+            if isempty(v)
+                n=1;
+            else
+                v.generate_combinations();
+                n=v.number_of_combinations();
+            end
+        end
+        function obj=get_scalar_instance(obj,index)
             arguments
-                obj
+                obj (1,1) cassette.simulation.Case
+                index (1,1) double {mustBePositive, mustBeInteger}
+            end
+            
+            if isa(obj.name,"cassette.variables.BaseVariable")
+                obj.name=obj.name.get_value(index);
+            end
+            obj.wind=obj.wind.get_scalar_instance(index);
+            obj.turbinestate=obj.turbinestate.get_scalar_instance(index);
+            obj.conditions=obj.conditions.get_scalar_instance(index);
+        end
+
+        function inputfile=to_bladed(simulation,template,outputfolder)
+            arguments
+                simulation
                 template cassette.templates.BladedTemplate
                 outputfolder (1,1) string {mustBeFolder}
             end
             warning("deprecated: use template.merge (works for any template type) method instead of simulation.to_bladed")
 
-            inputfile=template.new_case(obj.name,outputfolder);
+            inputfile=template.merge(simulation,outputfolder);
 
-            % add path
-            inputfile.replaceProperty("PATH",fileparts(inputfile.file))
-
-            % specify run name and calculation type:
-            inputfile.replaceProperty("RUNNAME",obj.name)
-
-            index_runconfig=inputfile.findLine("<RunConfiguration>",method="contains");
-            inputfile.replaceXMLProperty("Name",obj.name,after_index=index_runconfig)
-
-            % replace various properties
-            I=length(obj.conditions);
-            for i=1:I
-                obj.conditions(i).to_bladed(inputfile)
-            end
-
-            % set turbine state
-            obj.turbinestate.to_bladed(inputfile)
-
-            % set turbulence block
-            obj.wind.to_bladed(inputfile)
-
-            inputfile.metadata=obj.to_struct();
 
         end
 

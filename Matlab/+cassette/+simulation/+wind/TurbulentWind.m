@@ -45,6 +45,17 @@ classdef TurbulentWind < cassette.simulation.wind.BaseWind
             template.WINDSEL=template.moduleTurbulentWind(obj.speed,template.RCON.HEIGHT,obj.TIu/100,obj.TIv/100,obj.TIw/100,obj.direction*pi/180,obj.file);
             template.replaceProperty("WSHEAR",obj.shear)
         end
+        function to_orcaflex(obj,template)
+            env=template.ofxmodel.environment;
+            env.WindType='Full field';
+            env.WindFullFieldFormat='TurbSim';
+            env.WindDirection=obj.direction;
+            env.WindFullFieldFileName=obj.file;
+
+            % input density converted to model units
+            env.AirDensity=obj.density/1000*env.UnitsConversionFactor('MM.LL^-3');
+
+        end
 
     end
 end

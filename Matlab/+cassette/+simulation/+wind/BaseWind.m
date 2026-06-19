@@ -12,13 +12,15 @@ classdef (Abstract) BaseWind < cassette.simulation.condition.BaseCondition
     methods
         function obj = BaseWind(speed,direction,shear,density)
             arguments
-                speed (1,1) double
-                direction (1,1) double = 0
-                shear (1,1) double = 0
-                density (1,1) double = 1.225
+                speed (1,1) 
+                direction (1,1)  = 0
+                shear (1,1)  = 0
+                density (1,1) = 1.225
             end
             obj.speed=speed;
-            cassette.Utils.mustBeDegrees(direction,"Wind Direction")
+            if ~isa(direction,"cassette.variables.BaseVariable")
+                cassette.Utils.mustBeDegrees(direction,"Wind Direction")
+            end
             obj.direction=direction;
             obj.shear=shear;
             obj.density=density;
