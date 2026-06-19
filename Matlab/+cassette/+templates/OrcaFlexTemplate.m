@@ -3,9 +3,12 @@ classdef OrcaFlexTemplate < cassette.templates.Template
     %   Detailed explanation goes here
     properties
         ofxmodel
+        outputtype (1,1) string {mustBeMember(filetype,["yml","dat"])}="yml";
     end
     properties (Dependent)
         ofxturbine
+        ofxnacelle
+        ofxcontroller
         rotor_diameter
     end
     properties (SetAccess=private)
@@ -14,7 +17,8 @@ classdef OrcaFlexTemplate < cassette.templates.Template
     methods
         function m=get.ofxmodel(obj)
             if isempty(obj.ofxmodel)
-                m=ofxModel(obj.file);
+                m=ofxModel();
+                m.NewVariationModel(obj.file);
                 obj.ofxmodel=m;
             else
                 m=obj.ofxmodel;
@@ -29,8 +33,9 @@ classdef OrcaFlexTemplate < cassette.templates.Template
 
             new_obj=copy(obj);
             new_obj.name=name;
-            new_obj.file=fullfile(folder,name+".dat");
-            new_obj.ofxmodel=ofxModel(obj.file);
+            new_obj.file=fullfile(folder,name+"."+obj.outputtype );
+            new_obj.ofxmodel=ofxModel();
+            new_obj.ofxmodel.NewVariationModel(obj.file);
         end
 
 
@@ -41,18 +46,48 @@ classdef OrcaFlexTemplate < cassette.templates.Template
             % write contents into file
             obj.ofxmodel.SaveData(obj.file)
         end
-        function merge(obj,simulation,outputfolder)
-            error("not implemented")
+        function result=merge(template,simulation,outputfolder)
+
+            result=template.new_case(simulation.name,outputfolder);
+
+            % replace various properties
+            I=length(simulation.conditions);
+            for i=1:I
+                simulation.conditions(i).to_orcaflex(result)
+            end
+
+            % set turbine state
+            simulation.turbinestate.to_orcaflex(result)
+
+            % set turbulence block
+            simulation.wind.to_orcaflex(result)
+
+            if isa(simulation,"cassette.simulation.OffshoreCase")
+                simulation.wave.to_orcaflex(result)
+                simulation.current.to_orcaflex(result)
+            end
+
+            result.metadata=simulation.to_struct();
+            
         end
         function wtg=get.ofxturbine(obj)
             obj=obj.ofxmodel.objects;
             obj_type=cellfun(@(obj)obj.type,obj);
-            obj_class=string(cellfun(@class,obj));
             wtg=obj(obj_type==ofx.otTurbine);
             if length(wtg)>1
                 error("too many turbines found in model")
             else
                 wtg=wtg{1};
+            end
+        end
+        function con=get.ofxcontroller(obj)
+            obj=obj.ofxmodel.objects;
+            obj_type=cellfun(@(obj)obj.type,obj);
+            con=obj(obj_type==ofx.otExternalFunction);
+            if length(con)>1
+                error("too many external functions found in model. Uncertain which one is the external controller.")
+            else
+                con=con{1};
             end
         end
         function nac=get.ofxnacelle(obj)

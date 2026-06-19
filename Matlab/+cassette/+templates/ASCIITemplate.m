@@ -5,6 +5,10 @@ classdef ASCIITemplate < cassette.templates.Template
 
     methods
         function obj = ASCIITemplate(file,name)
+            arguments
+                file (1,1) string
+                name (1,1) string =string(missing)
+            end
             obj@cassette.templates.Template(file,name)
             obj.data=readlines(file);
         end

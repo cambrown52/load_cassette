@@ -8,7 +8,7 @@ classdef Template < matlab.mixin.SetGetExactNames & matlab.mixin.Copyable
     end
     methods (Abstract)
         write_(obj)
-        merge(obj,simulation,outputfolder)
+        filledtemplate=merge(obj,simulation,outputfolder)
     end
 
     methods
@@ -54,14 +54,13 @@ classdef Template < matlab.mixin.SetGetExactNames & matlab.mixin.Copyable
 
                 % write contents into file
                 obj(o).write_()
-                fid=fopen(obj(o).file,'w+');
-                fprintf(fid,"%s",sprintf('%s\r\n',obj(o).data));
-                fclose(fid);
 
                 % write metadata
                 if ~isempty(obj(o).metadata)
+                    metadata=jsonencode(obj(o).metadata,"PrettyPrint",true);
+                    
                     writelines(...
-                        jsonencode(obj(o).metadata,"PrettyPrint",true),...
+                        metadata,...
                         fullfile(outputfolder,obj(o).name+".metadata.json")...
                         );
                 end

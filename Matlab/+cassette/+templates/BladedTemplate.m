@@ -110,8 +110,32 @@ classdef BladedTemplate < cassette.templates.ASCIITemplate
             new_obj.file=fullfile(folder,name,"DTBLADED.IN");
         end
 
-        function inputfile=merge(obj,simulation,outputfolder)
-            inputfile=simulation.to_bladed(obj,outputfolder);
+        function inputfile=merge(template,simulation,outputfolder)
+           
+            inputfile=template.new_case(simulation.name,outputfolder);
+
+            % add path
+            inputfile.replaceProperty("PATH",fileparts(inputfile.file))
+
+            % specify run name and calculation type:
+            inputfile.replaceProperty("RUNNAME",simulation.name)
+
+            index_runconfig=inputfile.findLine("<RunConfiguration>",method="contains");
+            inputfile.replaceXMLProperty("Name",simulation.name,after_index=index_runconfig)
+
+            % replace various properties
+            I=length(simulation.conditions);
+            for i=1:I
+                simulation.conditions(i).to_bladed(inputfile)
+            end
+
+            % set turbine state
+            simulation.turbinestate.to_bladed(inputfile)
+
+            % set turbulence block
+            simulation.wind.to_bladed(inputfile)
+
+            inputfile.metadata=simulation.to_struct();
         end
 
         function b=interpretModule(obj,modulename)
@@ -323,7 +347,7 @@ classdef BladedTemplate < cassette.templates.ASCIITemplate
 
 
 
-        function block=moduleTurbulentWind(wind_speed,reference_height,ti_u,ti_v,ti_w,wind_dir,wind_file)
+        function block=moduleTurbulentWind(wind_speed,reference_height,ti_u,ti_v,ti_w,wind_dir,wind_file,inargs)
             arguments
                 wind_speed (1,1) double
                 reference_height (1,1) double
@@ -332,13 +356,19 @@ classdef BladedTemplate < cassette.templates.ASCIITemplate
                 ti_w (1,1) double
                 wind_dir (1,1) double
                 wind_file (1,1) string
+                inargs.turbulence_box_centered_on_hub(1,1) logical = true
             end
             cassette.Utils.mustBeRadians(wind_dir)
+            if inargs.turbulence_box_centered_on_hub
+                TURBHTTYPE=0;
+            else
+                TURBHTTYPE=1;
+            end
             block=struct(...
                 "WMODEL",	3,...
                 "UBAR",wind_speed,...
                 "REFHT",reference_height,...
-                "TURBHTTYPE", 1,...
+                "TURBHTTYPE", TURBHTTYPE,...
                 "TI",ti_u,...
                 "TI_V",ti_v,...
                 "TI_W", ti_w,...
