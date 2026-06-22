@@ -7,7 +7,7 @@ classdef JONSWAPWaves < cassette.simulation.condition.BaseCondition
         Tp
         gamma
         direction
-        
+        waveseed
     end
 
     methods
@@ -17,6 +17,7 @@ classdef JONSWAPWaves < cassette.simulation.condition.BaseCondition
                 Tp (1,1) double {mustBePositive}
                 direction (1,1) double =0
                 inargs.gamma (1,1) double = NaN
+                inargs.waveseed (1,1) int32 = 1
             end
                 
             obj.Hs = Hs;
@@ -25,6 +26,7 @@ classdef JONSWAPWaves < cassette.simulation.condition.BaseCondition
             if ~isnan(inargs.gamma)
                 obj.gamma=inargs.gamma;
             end
+            obj.waveseed = inargs.waveseed;
 
         end
         function g=get.gamma(obj)
@@ -55,6 +57,8 @@ classdef JONSWAPWaves < cassette.simulation.condition.BaseCondition
             env.WaveHs=obj.Hs;
             env.WaveGamma=obj.gamma;
             env.WaveTp=obj.Tp;
+            env.UserSpecifiedRandomWaveSeeds='Yes';
+            env.WaveSeed=obj.waveseed;
         end
 
         % function to_bladed(obj,template)
