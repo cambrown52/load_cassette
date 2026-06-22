@@ -5,10 +5,17 @@ classdef NormalOperation < cassette.simulation.turbinestate.BaseState
     properties
 
     end
+    properties (Hidden)
+        default_initialpitchangle = 0
+    end
 
     methods
-        function obj = NormalOperation(yaw)
-            obj@cassette.simulation.turbinestate.BaseState(yaw)
+        function obj = NormalOperation(yaw,initialpitchangle)
+            arguments
+                yaw (1,1)
+                initialpitchangle (1,1) =NaN
+            end
+            obj@cassette.simulation.turbinestate.BaseState(yaw,initialpitchangle)
         end
     end
     methods
@@ -26,6 +33,11 @@ classdef NormalOperation < cassette.simulation.turbinestate.BaseState
 
             % set yaw error
             template.replaceProperty("INIMD",obj.yaw*pi/180)
+
+            % set initial pitch angle
+            if ~isempty(obj.pitchangle)
+                error('Varying from default initial pitch angle is not yet implemented for Bladed.')
+            end
         end
        function to_orcaflex(obj,template)
             template.ofxnacelle.InitialRotation3=obj.yaw;
@@ -34,6 +46,15 @@ classdef NormalOperation < cassette.simulation.turbinestate.BaseState
             wtg.GeneratorMode="Specified torque";
             wtg.GeneratorTorqueController=template.ofxcontroller.name;
             wtg.PitchController=template.ofxcontroller.name;
+            wtg.PitchControlMode='Individual';
+            if ~isempty(obj.pitchangle)
+                initialpitchangle=obj.pitchangle;
+            else
+                initialpitchangle=obj.default_idlingpitchangle;
+            end
+            for i=1:wtg.BladeCount
+                wtg.InitialPitch(i)=initialpitchangle;
+            end
             wtg.InitialRotorAngVel=.3;
         end
     end

@@ -2,9 +2,7 @@ classdef Idling < cassette.simulation.turbinestate.BaseState
     %OPERATION Summary of this class goes here
     %   Detailed explanation goes here
 
-    properties
-        idlingpitchangle
-    end
+
     properties (Hidden)
         default_idlingpitchangle = 90
     end
@@ -15,10 +13,7 @@ classdef Idling < cassette.simulation.turbinestate.BaseState
                 yaw
                 idlingpitchangle (1,1) double =NaN
             end
-            obj@cassette.simulation.turbinestate.BaseState(yaw)
-            if ~isnan(idlingpitchangle)
-                obj.idlingpitchangle=idlingpitchangle;
-            end
+            obj@cassette.simulation.turbinestate.BaseState(yaw,idlingpitchangle)
         end
     end
     methods
@@ -38,7 +33,7 @@ classdef Idling < cassette.simulation.turbinestate.BaseState
             template.replaceProperty("INIMD",obj.yaw*pi/180)
 
             % set idling pitch angle
-            if ~isempty(obj.idlingpitchangle)
+            if ~isempty(obj.pitchangle)
                 error('Varying from default idling pitch angle is not yet implemented for Bladed.')
             end
         end
@@ -48,8 +43,8 @@ classdef Idling < cassette.simulation.turbinestate.BaseState
             template.ofxturbine.GeneratorTorqueController=0;
             template.ofxturbine.PitchController="(none)";
             template.ofxturbine.PitchControlMode='Common';
-            if ~isempty(obj.idlingpitchangle)
-                template.ofxturbine.InitialPitch(1)=obj.idlingpitchangle;
+            if ~isempty(obj.pitchangle)
+                template.ofxturbine.InitialPitch(1)=obj.pitchangle;
             else
                 template.ofxturbine.InitialPitch(1)=obj.default_idlingpitchangle;
             end
