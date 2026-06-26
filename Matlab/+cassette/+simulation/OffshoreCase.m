@@ -27,6 +27,9 @@ classdef OffshoreCase < cassette.simulation.Case
             end
 
         end
+        function conditions=get_all_conditions(obj)
+            conditions=[obj.wind;obj.turbinestate;obj.conditions;obj.wave;obj.current];
+        end
 
         function inputfile=to_bladed(obj,template,outputfolder)
             arguments

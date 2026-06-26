@@ -45,6 +45,9 @@ classdef BaseVariable < matlab.mixin.SetGetExactNames & matlab.mixin.Heterogeneo
             end
             
         end
+        function d=to_dict(obj)
+            d=dictionary(obj.names,obj);
+        end
     end
 
 end

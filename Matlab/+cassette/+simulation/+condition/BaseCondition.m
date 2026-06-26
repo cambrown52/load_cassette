@@ -1,5 +1,5 @@
 classdef (Abstract) BaseCondition < matlab.mixin.Heterogeneous & matlab.mixin.SetGetExactNames & matlab.mixin.Copyable
-    methods
+    methods       
         function to_bladed(obj,template)
             error('not implemented in class %s',class(obj))
         end

@@ -27,13 +27,16 @@ classdef Case
             end
 
         end
+        function conditions=get_all_conditions(obj)
+            conditions=[obj.wind;obj.turbinestate;obj.conditions];
+        end
 
         function v=get_variables(obj)
             v=[];
             if isa(obj.name,"cassette.variables.BaseVariable")
                 v=[v;obj.name];
             end
-            v=[v; get_variables([obj.wind;obj.turbinestate;obj.conditions])];
+            v=[v; obj.get_all_conditions().get_variables()];
         end
 
 
@@ -74,6 +77,9 @@ classdef Case
         end
 
         function st=to_struct(obj)
+            arguments
+                obj (1,1)
+            end
             st=struct();
             
             st.case.ObjectType=class(obj);
