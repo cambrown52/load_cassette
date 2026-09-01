@@ -1,4 +1,4 @@
-classdef JONSWAPWaves < cassette.simulation.condition.BaseCondition
+classdef JONSWAPWaves < cassette.simulation.wave.IrregularWaves
     %REGULARWAVES Summary of this class goes here
     %   Detailed explanation goes here
 
@@ -8,6 +8,7 @@ classdef JONSWAPWaves < cassette.simulation.condition.BaseCondition
         gamma
         direction
         waveseed
+        numberofcomponents
     end
 
     methods
@@ -18,6 +19,7 @@ classdef JONSWAPWaves < cassette.simulation.condition.BaseCondition
                 direction (1,1) double =0
                 inargs.gamma (1,1) double = NaN
                 inargs.waveseed (1,1) int32 = 1
+                inargs.numberofcomponents (1,1) double = NaN
             end
                 
             obj.Hs = Hs;
@@ -27,6 +29,9 @@ classdef JONSWAPWaves < cassette.simulation.condition.BaseCondition
                 obj.gamma=inargs.gamma;
             end
             obj.waveseed = inargs.waveseed;
+            if ~isnan(inargs.numberofcomponents)
+                obj.numberofcomponents=inargs.numberofcomponents;
+            end
 
         end
         function g=get.gamma(obj)
@@ -48,9 +53,17 @@ classdef JONSWAPWaves < cassette.simulation.condition.BaseCondition
         %     n=sprintf("H%02.1fm_T%02.0s_dir%03.0fdeg",obj.Hs,obj.Tp,obj.direction);
         % end
 
-        function to_orcaflex(obj,template)
+        function to_orcaflex(obj,template,inargs)
+            arguments
+                obj
+                template
+                inargs.WaveTrainNumber (1,1) double {mustBePositive,mustBeInteger} =1;
+            end
             env=template.ofxmodel.environment;
-            env.NumberOfWaveTrains=1;
+            env.NumberOfWaveTrains=inargs.WaveTrainNumber;
+            env.SelectedWaveIndex =inargs.WaveTrainNumber;
+
+
             env.WaveType='JONSWAP';
             env.WaveJONSWAPParameters='Partially specified';
             env.WaveDirection=obj.direction;
@@ -59,6 +72,11 @@ classdef JONSWAPWaves < cassette.simulation.condition.BaseCondition
             env.WaveTp=obj.Tp;
             env.UserSpecifiedRandomWaveSeeds='Yes';
             env.WaveSeed=obj.waveseed;
+            
+            if ~isempty(obj.numberofcomponents)
+                env.WaveNumberOfComponents=obj.numberofcomponents;
+            end
+            env.WaveKinematicsCutoffDepth=env.SeabedOriginDepth-2;
         end
 
         % function to_bladed(obj,template)
