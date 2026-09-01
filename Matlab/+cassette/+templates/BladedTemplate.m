@@ -135,6 +135,11 @@ classdef BladedTemplate < cassette.templates.ASCIITemplate
             % set turbulence block
             simulation.wind.to_bladed(inputfile)
 
+            if isa(simulation,"cassette.simulation.OffshoreCase")
+                simulation.wave.to_bladed(inputfile)
+                simulation.current.to_bladed(inputfile)
+            end
+
             inputfile.metadata=simulation.to_struct();
         end
 
