@@ -43,6 +43,7 @@ classdef NormalOperation < cassette.simulation.turbinestate.BaseState
             template.ofxnacelle.InitialRotation3=obj.yaw;
             wtg=template.ofxturbine;
             wtg.IncludedInduction="Axial and tangential";
+            wtg.DOFsSolvedIn="Rotating frame";
             wtg.GeneratorMode="Specified torque";
             wtg.GeneratorTorqueController=template.ofxcontroller.name;
             wtg.PitchController=template.ofxcontroller.name;
