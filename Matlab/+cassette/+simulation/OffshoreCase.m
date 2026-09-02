@@ -11,7 +11,7 @@ classdef OffshoreCase < cassette.simulation.Case
     methods
         function obj = OffshoreCase(name,wind,wave,current,turbinestate,inargs)
             arguments
-                name (1,1) string
+                name (1,1) 
                 wind (1,1)
                 wave (1,1)
                 current (1,1) = cassette.simulation.current.NoCurrent

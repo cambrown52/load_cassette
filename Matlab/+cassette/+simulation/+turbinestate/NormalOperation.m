@@ -50,7 +50,7 @@ classdef NormalOperation < cassette.simulation.turbinestate.BaseState
             if ~isempty(obj.pitchangle)
                 initialpitchangle=obj.pitchangle;
             else
-                initialpitchangle=obj.default_idlingpitchangle;
+                initialpitchangle=obj.default_initialpitchangle;
             end
             for i=1:wtg.BladeCount
                 wtg.InitialPitch(i)=initialpitchangle;

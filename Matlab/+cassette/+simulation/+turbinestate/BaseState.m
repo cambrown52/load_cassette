@@ -14,12 +14,16 @@ classdef BaseState < cassette.simulation.condition.BaseCondition
                mustBeBetween(yaw,-360,360)
                cassette.Utils.mustBeDegrees(yaw,"Yaw position")
            end
-           if ~isnan(pitchangle)
+           obj.yaw=yaw;
+
+           if isa(pitchangle,"cassette.variables.BaseVariable")
+               obj.pitchangle=pitchangle;
+           elseif ~isnan(pitchangle)
                mustBeBetween(pitchangle,-180,180)
                cassette.Utils.mustBeDegrees(pitchangle,"Pitch angle")
                obj.pitchangle=pitchangle;
            end
-           obj.yaw=yaw;
+
        end
    end
 
