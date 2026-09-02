@@ -14,7 +14,11 @@ classdef (Abstract) BaseCondition < matlab.mixin.Heterogeneous & matlab.mixin.Se
             st=struct();
             st.ObjectType=string(class(obj));
             for i=1:I
-                st.(p(i))=obj.(p(i));
+                value=obj.(p(i));
+                if isa(value,"cassette.simulation.condition.BaseCondition")
+                    value=value.to_struct();
+                end
+                st.(p(i))=value;
             end
         end
         function p=independent_properties(obj)

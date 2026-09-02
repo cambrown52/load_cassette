@@ -38,17 +38,19 @@ classdef Idling < cassette.simulation.turbinestate.BaseState
             end
         end
         function to_orcaflex(obj,template)
+            wtg=template.ofxturbine;
             template.ofxnacelle.InitialRotation3=obj.yaw;
-            template.ofxturbine.GeneratorMode="Specified torque";
-            template.ofxturbine.GeneratorTorqueController=0;
-            template.ofxturbine.PitchController="(none)";
-            template.ofxturbine.PitchControlMode='Common';
+            wtg.GeneratorMode="Specified torque";
+            wtg.GeneratorTorqueController=0;
+            wtg.PitchController="(none)";
+            wtg.PitchControlMode='Common';
             if ~isempty(obj.pitchangle)
-                template.ofxturbine.InitialPitch(1)=obj.pitchangle;
+                wtg.InitialPitch(1)=obj.pitchangle;
             else
-                template.ofxturbine.InitialPitch(1)=obj.default_idlingpitchangle;
+                wtg.InitialPitch(1)=obj.default_idlingpitchangle;
             end
-            template.ofxturbine.IncludedInduction="None";
+            wtg.IncludedInduction="None";
+            wtg.DOFsSolvedIn="Inertial frame";
         end
     end
 end

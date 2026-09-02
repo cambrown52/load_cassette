@@ -46,7 +46,9 @@ classdef Template < matlab.mixin.SetGetExactNames & matlab.mixin.Copyable
             for o=1:O
                 
                 % determine filename
-                fprintf("[%i] writing:\t%s\n",o,obj(o).file)
+                if O>1
+                    fprintf("[%i] writing:\t%s\n",o,obj(o).file)
+                end
                 outputfolder=fileparts(obj(o).file);
                 if inargs.mkdir && ~exist(outputfolder,'dir')
                     mkdir(outputfolder)

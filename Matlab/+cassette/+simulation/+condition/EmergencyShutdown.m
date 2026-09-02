@@ -22,5 +22,9 @@ classdef EmergencyShutdown < cassette.simulation.condition.BaseCondition
             template.replaceProperty("TIME",2,module="SAFETYSYSTEM")
             template.replaceProperty("TIMEVAL",obj.shutdowntime,module="SAFETYSYSTEM")
         end
+        function to_orcaflex(obj,template)
+            template.ofxturbine.SetTag("SafetyCircuitTime",string(obj.shutdowntime))
+            template.ofxturbine.SetTag("SafetyCircuitValue",string(2))
+        end
     end
 end
